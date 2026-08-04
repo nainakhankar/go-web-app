@@ -3,11 +3,11 @@ module github.com/nainakhankar/go-web-app
 go 1.25.0
 
 require (
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.70.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.58.0
 	go.opentelemetry.io/otel v1.45.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.45.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0
 	go.opentelemetry.io/otel/sdk v1.45.0
-	google.golang.org/grpc v1.83.0
+	google.golang.org/grpc v1.83.0-dev
 )
 
 require (
