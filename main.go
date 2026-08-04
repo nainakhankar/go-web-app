@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
+	"github.com/nainakhankar/go-web-app/telemetry"
 )
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +32,7 @@ func main() {
 		collectorEndpoint = "localhost:4317"
 	}
 
-	shutdown, err := initTracer(ctx, collectorEndpoint)
+	shutdown, err := telemetry.InitTracer(ctx, "go-web-app", collectorEndpoint)
 	if err != nil {
 		log.Fatalf("failed to init tracer: %v", err)
 	}
@@ -42,7 +44,6 @@ func main() {
 	mux.HandleFunc("/about", aboutPage)
 	mux.HandleFunc("/contact", contactPage)
 
-	// Wraps every route with an auto-generated span (route, method, status, duration)
 	wrapped := otelhttp.NewHandler(mux, "go-web-app")
 
 	log.Println("Server starting on :8080")

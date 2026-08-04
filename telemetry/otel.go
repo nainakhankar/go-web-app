@@ -6,12 +6,12 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
-	"go.opentelemetry.io/otel/propagation"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func InitTracer(ctx context.Context, serviceName, collectorEndpoint string) (func(context.Context) error, error) {
