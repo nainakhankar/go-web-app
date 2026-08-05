@@ -1,0 +1,43 @@
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+    # Allow Prometheus to scrape the OTel Collector's /metrics endpoint
+    additionalScrapeConfigs:
+      - job_name: 'otel-collector'
+        static_configs:
+          - targets: ['otel-collector-opentelemetry-collector.observability.svc.cluster.local:8889']
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+
+grafana:
+  enabled: true
+  adminPassword: "changeme123"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+# kube-state-metrics and node-exporter are enabled by default in this chart —
+# they give you the Kubernetes cluster metrics layer for free
+kubeStateMetrics:
+  enabled: true
+nodeExporter:
+  enabled: true
