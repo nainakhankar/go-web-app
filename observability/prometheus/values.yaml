@@ -8,14 +8,13 @@ prometheus:
       limits:
         cpu: 500m
         memory: 1Gi
-    # Allow Prometheus to scrape the OTel Collector's /metrics endpoint
     additionalScrapeConfigs:
       - job_name: 'otel-collector'
         static_configs:
           - targets: ['otel-collector-opentelemetry-collector.observability.svc.cluster.local:8889']
 
 alertmanager:
-   alertmanagerSpec:
+  alertmanagerSpec:
     resources:
       requests:
         cpu: 50m
@@ -34,9 +33,14 @@ grafana:
     limits:
       cpu: 200m
       memory: 512Mi
+  additionalDataSources:
+    - name: Jaeger
+      type: jaeger
+      access: proxy
+      url: http://jaeger-query.observability.svc.cluster.local:16686
+      isDefault: false
+      editable: true
 
-# kube-state-metrics and node-exporter are enabled by default in this chart —
-# they give you the Kubernetes cluster metrics layer for free
 kubeStateMetrics:
   enabled: true
 nodeExporter:
