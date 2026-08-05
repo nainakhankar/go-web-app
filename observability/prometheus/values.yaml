@@ -15,7 +15,7 @@ prometheus:
           - targets: ['otel-collector-opentelemetry-collector.observability.svc.cluster.local:8889']
 
 alertmanager:
-  alertmanagerSpec:
+   alertmanagerSpec:
     resources:
       requests:
         cpu: 50m
