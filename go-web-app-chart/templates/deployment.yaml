@@ -20,3 +20,7 @@ spec:
         image: "nkhankar/go-web-app:{{ .Values.image.tag }}"
         ports:
         - containerPort: 8080
+      env:
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: "otel-collector-opentelemetry-collector.observability.svc.cluster.local:4317"
+
