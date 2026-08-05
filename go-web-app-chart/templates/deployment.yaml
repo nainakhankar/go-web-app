@@ -1,4 +1,5 @@
 # This is a sample deployment manifest file for a simple web application.
+# This is a sample deployment manifest file for a simple web application.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,7 +21,6 @@ spec:
         image: "nkhankar/go-web-app:{{ .Values.image.tag }}"
         ports:
         - containerPort: 8080
-      env:
-      - name: OTEL_EXPORTER_OTLP_ENDPOINT
-        value: "otel-collector-opentelemetry-collector.observability.svc.cluster.local:4317"
-
+        env:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector-opentelemetry-collector.observability.svc.cluster.local:4317"
