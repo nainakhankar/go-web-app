@@ -22,6 +22,36 @@ alertmanager:
       limits:
         cpu: 100m
         memory: 256Mi
+    secrets:
+      - slack-webhook
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: 'slack-notifications'
+      group_by: ['alertname', 'namespace', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - receiver: 'null'
+          matchers:
+            - alertname = "Watchdog"
+    inhibit_rules:
+      - source_matchers:
+          - severity = "critical"
+        target_matchers:
+          - severity = "warning"
+        equal: ['alertname', 'namespace', 'pod']
+    receivers:
+      - name: 'null'
+      - name: 'slack-notifications'
+        slack_configs:
+          - api_url_file: /etc/alertmanager/secrets/slack-webhook/webhook-url
+            channel: '#alerts'
+            send_resolved: true
+            title: '{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
+            text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}'
 
 grafana:
   enabled: true
@@ -45,3 +75,73 @@ kubeStateMetrics:
   enabled: true
 nodeExporter:
   enabled: true
+
+additionalPrometheusRulesMap:
+  go-web-app-alerts:
+    groups:
+      - name: go-web-app.rules
+        rules:
+          - alert: PodCrashLooping
+            expr: increase(kube_pod_container_status_restarts_total{namespace=~"default|observability"}[15m]) > 3
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod {{ $labels.pod }} is crash looping"
+              description: "Container {{ $labels.container }} in pod {{ $labels.pod }} (namespace {{ $labels.namespace }}) restarted more than 3 times in 15 minutes."
+
+          - alert: HighCPUUsage
+            expr: (sum(rate(container_cpu_usage_seconds_total{namespace=~"default|observability", container!=""}[5m])) by (pod, namespace) / sum(kube_pod_container_resource_limits{resource="cpu", namespace=~"default|observability"}) by (pod, namespace)) > 0.8
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage on pod {{ $labels.pod }}"
+              description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has used over 80% of its CPU limit for 10+ minutes."
+
+          - alert: HighMemoryUsage
+            expr: (sum(container_memory_working_set_bytes{namespace=~"default|observability", container!=""}) by (pod, namespace) / sum(kube_pod_container_resource_limits{resource="memory", namespace=~"default|observability"}) by (pod, namespace)) > 0.8
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory usage on pod {{ $labels.pod }}"
+              description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has used over 80% of its memory limit for 10+ minutes."
+
+          - alert: NodeMemoryPressure
+            expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.2
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Node {{ $labels.instance }} under memory pressure"
+              description: "Node {{ $labels.instance }} has less than 20% memory available."
+
+          - alert: OtelCollectorTargetDown
+            expr: up{job="otel-collector"} == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "OTel Collector Prometheus target is down"
+              description: "Prometheus hasn't been able to scrape the OTel Collector for 5+ minutes — traces/metrics pipeline may be broken."
+
+          # --- Ready for activation once app-level HTTP metrics are instrumented (not yet emitted) ---
+          # - alert: HighHTTPErrorRate
+          #   expr: sum(rate(http_server_duration_count{http_status_code=~"5.."}[5m])) / sum(rate(http_server_duration_count[5m])) > 0.05
+          #   for: 5m
+          #   labels:
+          #     severity: critical
+          #   annotations:
+          #     summary: "High 5xx error rate on go-web-app"
+          #     description: "More than 5% of requests are returning 5xx errors over the last 5 minutes."
+          #
+          # - alert: HighRequestLatency
+          #   expr: histogram_quantile(0.95, sum(rate(http_server_duration_bucket[5m])) by (le)) > 1
+          #   for: 5m
+          #   labels:
+          #     severity: warning
+          #   annotations:
+          #     summary: "High p95 latency on go-web-app"
+          #     description: "p95 request latency has exceeded 1 second for 5+ minutes."prometheus:
+
