@@ -32,11 +32,17 @@ func main() {
 		collectorEndpoint = "localhost:4317"
 	}
 
-	shutdown, err := telemetry.InitTracer(ctx, "go-web-app", collectorEndpoint)
+	shutdownTracer, err := telemetry.InitTracer(ctx, "go-web-app", collectorEndpoint)
 	if err != nil {
 		log.Fatalf("failed to init tracer: %v", err)
 	}
-	defer shutdown(ctx)
+	defer shutdownTracer(ctx)
+
+	shutdownMeter, err := telemetry.InitMeter(ctx, "go-web-app", collectorEndpoint)
+	if err != nil {
+		log.Fatalf("failed to init meter: %v", err)
+	}
+	defer shutdownMeter(ctx)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/home", homePage)
@@ -44,6 +50,8 @@ func main() {
 	mux.HandleFunc("/about", aboutPage)
 	mux.HandleFunc("/contact", contactPage)
 
+	// otelhttp automatically emits BOTH traces and request-duration metrics
+	// now that a MeterProvider is registered — no extra code needed per route
 	wrapped := otelhttp.NewHandler(mux, "go-web-app")
 
 	log.Println("Server starting on :8080")
