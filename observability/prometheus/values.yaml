@@ -131,17 +131,17 @@ additionalPrometheusRulesMap:
             expr: sum(rate(http_server_duration_count{http_status_code=~"5.."}[5m])) / sum(rate(http_server_duration_count[5m])) > 0.05
             for: 5m
             labels:
-               severity: critical
+              severity: critical
             annotations:
-               summary: "High 5xx error rate on go-web-app"
-               description: "More than 5% of requests are returning 5xx errors over the last 5 minutes."
+              summary: "High 5xx error rate on go-web-app"
+              description: "More than 5% of requests are returning 5xx errors over the last 5 minutes."
           #
           - alert: HighRequestLatency
             expr: histogram_quantile(0.95, sum(rate(http_server_duration_bucket[5m])) by (le)) > 1
             for: 5m
             labels:
-               severity: warning
+             severity: warning
             annotations:
-               summary: "High p95 latency on go-web-app"
-               description: "p95 request latency has exceeded 1 second for 5+ minutes."prometheus:
+              summary: "High p95 latency on go-web-app"
+              description: "p95 request latency has exceeded 1 second for 5+ minutes."
 
