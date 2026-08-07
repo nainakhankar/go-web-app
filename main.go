@@ -36,13 +36,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init tracer: %v", err)
 	}
-	defer shutdownTracer(ctx)
+	defer func() {
+		if err := shutdownTracer(ctx); err != nil {
+			log.Printf("error shutting down tracer: %v", err)
+		}
+	}()
 
 	shutdownMeter, err := telemetry.InitMeter(ctx, "go-web-app", collectorEndpoint)
 	if err != nil {
 		log.Fatalf("failed to init meter: %v", err)
 	}
-	defer shutdownMeter(ctx)
+	defer func() {
+		if err := shutdownMeter(ctx); err != nil {
+			log.Printf("error shutting down meter: %v", err)
+		}
+	}()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/home", homePage)
