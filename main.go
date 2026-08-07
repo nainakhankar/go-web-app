@@ -38,7 +38,9 @@ func slowPage(w http.ResponseWriter, r *http.Request) {
 
 func errorPage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
-	fmt.Fprintln(w, "simulated 500 error")
+	if _, err := fmt.Fprintln(w, "simulated 500 error"); err != nil {
+           log.Printf("write response error: %v", err)
+}
 }
 
 var leakStore [][]byte
@@ -47,11 +49,18 @@ func leakPage(w http.ResponseWriter, r *http.Request) {
 	// allocates 5MB per call and never releases it — simulates a memory leak
 	b := make([]byte, 5*1024*1024)
 	leakStore = append(leakStore, b)
-	fmt.Fprintf(w, "leaked chunk added, total chunks held: %d\n", len(leakStore))
+	if _, err := fmt.Fprintf(w,
+          "leaked chunk added, total chunks held: %d\n",
+          len(leakStore),
+       ); err != nil {
+           log.Printf("write response error: %v", err)
+}
 }
 
 func crashPage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "crashing process in 1 second...")
+        if _, err := fmt.Fprintln(w, "crashing process in 1 second..."); err != nil {
+          log.Printf("write response error: %v", err)
+}
 	go func() {
 		time.Sleep(1 * time.Second)
 		os.Exit(1)
