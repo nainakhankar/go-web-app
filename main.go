@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
         "fmt"
-        "os"
         "time"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
