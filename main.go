@@ -29,7 +29,11 @@ func contactPage(w http.ResponseWriter, r *http.Request) {
 
 func slowPage(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(4 * time.Second)
-	fmt.Fprintln(w, "slow response after 4s")
+	if _, err := fmt.Fprintln(w, "slow response after 4s"); err != nil {
+           log.Printf("write response error: %v", err)
+
+
+   }
 }
 
 func errorPage(w http.ResponseWriter, r *http.Request) {
