@@ -80,5 +80,4 @@ go-web-app/
 
 ## About
 
-Built by [Naina Khankar](https://github.com/nainakhankar) as a hands-on DevOps/SRE/Cloud Support portfolio project, extending [iam-veeramalla/go-web-app](https://github.com/iam-veeramalla/go-web-app)'s original CI/CD tutorial with a full production-style observability platform.
-
+Built by [Naina Khankar](https://github.com/nainakhankar) as a hands-on DevOps/SRE/Cloud Support portfolio project. The base application (`main.go`, static site) comes from [iam-veeramalla/go-web-app](https://github.com/iam-veeramalla/go-web-app) — everything else, including CI/CD, Kubernetes/Helm, and the full 7-phase observability platform (OpenTelemetry, Prometheus, Grafana, Alertmanager, Jaeger, Argo CD), was independently built and deployed on AWS EKS.
