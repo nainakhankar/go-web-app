@@ -48,13 +48,16 @@ var leakStore [][]byte
 func leakPage(w http.ResponseWriter, r *http.Request) {
 	// allocates 5MB per call and never releases it — simulates a memory leak
 	b := make([]byte, 5*1024*1024)
+	for i := range b {
+		b[i] = byte(i) // force real page commits, not just zeroed/virtual allocation
+	}
 	leakStore = append(leakStore, b)
 	if _, err := fmt.Fprintf(w,
-          "leaked chunk added, total chunks held: %d\n",
-          len(leakStore),
-       ); err != nil {
-           log.Printf("write response error: %v", err)
-}
+		"leaked chunk added, total chunks held: %d\n",
+		len(leakStore),
+	); err != nil {
+		log.Printf("write response error: %v", err)
+	}
 }
 
 func crashPage(w http.ResponseWriter, r *http.Request) {
