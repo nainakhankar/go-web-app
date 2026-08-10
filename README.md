@@ -1,6 +1,6 @@
 # Go Web App — End-to-End DevOps & Observability Platform
 
-A Golang web application used as the foundation for a complete, production-style DevOps and observability platform on AWS EKS
+End-to-end DevOps project demonstrating CI/CD, GitOps, AWS EKS, Kubernetes, OpenTelemetry, Prometheus, Grafana, Jaeger, and Alertmanager.
 
 Original app credit: [iam-veeramalla/go-web-app]
 
